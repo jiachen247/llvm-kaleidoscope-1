@@ -193,15 +193,15 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
 ### Objective of Parser
 1. For expression a + b, we want to get:
     ```objectivec
-    auto LHS = llvm::make_unique<VariableExprAST>("a");
-    auto RHS = llvm::make_unique<VariableExprAST>("b");
-    auto Result = llvm::make_unique<BinaryExprAST>("+", std::move(LHS), std::move(RHS));
+    auto LHS = std::make_unique<VariableExprAST>("a");
+    auto RHS = std::make_unique<VariableExprAST>("b");
+    auto Result = std::make_unique<BinaryExprAST>("+", std::move(LHS), std::move(RHS));
     ```
 
 2. Parser for numerical numbers, case TOKEN_NUMBER.
     ```objectivec
     static std::unique_ptr<ExprAST> parseNumberExpr(){
-      auto result =  llvm::make_unique<NumberExprAST>(numVal);
+      auto result =  std::make_unique<NumberExprAST>(numVal);
       getNextToken();
       return result;
     }
@@ -231,7 +231,7 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
         getNextToken(); // move to next token
        
        // current expression is a = b, where b is current identifier.
-        if(curToken != '(') return llvm::make_unique<VariableExprAST>(idName);  // a = b
+        if(curToken != '(') return std::make_unique<VariableExprAST>(idName);  // a = b
     
        // current expression is a function call;
         getNextToken();    // skip '('.
@@ -248,7 +248,7 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
             }
         }
         getNextToken();   // move to next token.
-        return llvm::make_unique<CallExprAST>(idName, args);
+        return std::make_unique<CallExprAST>(idName, args);
     }
     ```
 
@@ -300,7 +300,7 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
             
            // next operator has same or lower precedence to current one, go to the while loop again.
            // merge current LHS and RHS.
-            LHS = llvm::make_unique<BinaryExprAST>(curOp, std::move(LHS), std::move(RHS));
+            LHS = std::make_unique<BinaryExprAST>(curOp, std::move(LHS), std::move(RHS));
         }
     }
     ```
@@ -326,7 +326,7 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
         if(curToken != ')') return logErrorP("Expect ')' matching '('");
         getNextToken();
         //3. Create a prototype AST holding the function name and args names.
-        return llvm::make_unique<ProtoTypeAST>(functionName, std::move(args));
+        return std::make_unique<ProtoTypeAST>(functionName, std::move(args));
     }
     ```
 
@@ -342,7 +342,7 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
     
        // body
         auto body = parseExpression();
-        return llvm::make_unique<FunctionAST>(std::move(proto), std::move(body));
+        return std::make_unique<FunctionAST>(std::move(proto), std::move(body));
     }
     ```
 
@@ -358,8 +358,8 @@ Only tokens cannot represent the grammar or higher level meaning of the program.
     ```objectivec
     static std::unique_ptr<FunctionAST> parseTopLevel(){
         if(auto body = parseExpression();
-        auto proto = llvm::make_unique<ProtoTypeAST>("", std::vector<std::string> v);
-        return llvm::make_unique<FunctionAST>(std::move(proto), std::move(body));
+        auto proto = std::make_unique<ProtoTypeAST>("", std::vector<std::string> v);
+        return std::make_unique<FunctionAST>(std::move(proto), std::move(body));
     }
     ```
 

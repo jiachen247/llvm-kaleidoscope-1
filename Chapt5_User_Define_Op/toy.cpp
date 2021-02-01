@@ -354,7 +354,7 @@ static int getTokenPrecedence(){
 static std::unique_ptr<ExprAST> parseExpression();
 
 static std::unique_ptr<ExprAST> parseNumberExpr(){
-    auto result =  llvm::make_unique<NumberExprAST>(numVal);
+    auto result =  std::make_unique<NumberExprAST>(numVal);
     getNextToken();
     return result;
 }
@@ -375,7 +375,7 @@ static std::unique_ptr<ExprAST> parseIdentifierExpr(){
     getNextToken(); // move to next token
 
     // just an identifier, like a b
-    if(curToken != '(') return llvm::make_unique<VariableExprAST>(idName);
+    if(curToken != '(') return std::make_unique<VariableExprAST>(idName);
 
     // enter the bracket parse
     getNextToken();
@@ -392,7 +392,7 @@ static std::unique_ptr<ExprAST> parseIdentifierExpr(){
         }
     }
     getNextToken();
-    return llvm::make_unique<CallExprAST>(idName, std::move(args));
+    return std::make_unique<CallExprAST>(idName, std::move(args));
 }
 
 static std::unique_ptr<ExprAST> parseIfExpr(){
@@ -413,7 +413,7 @@ static std::unique_ptr<ExprAST> parseIfExpr(){
     auto Else = parseExpression();
     if(!Else) return nullptr;
 
-    return llvm::make_unique<IfExprAST>(std::move(Cond), std::move(Then), std::move(Else));
+    return std::make_unique<IfExprAST>(std::move(Cond), std::move(Then), std::move(Else));
 }
 
 //===----------------------------------------------------
@@ -456,7 +456,7 @@ static std::unique_ptr<ExprAST> parseBinaryOpExpressionRHS(int opPrec, std::uniq
             if(!RHS) return nullptr;
         }
 
-        LHS = llvm::make_unique<BinaryExprAST>(curOp, std::move(LHS), std::move(RHS));
+        LHS = std::make_unique<BinaryExprAST>(curOp, std::move(LHS), std::move(RHS));
     }
 }
 
@@ -502,7 +502,7 @@ static std::unique_ptr<ProtoTypeAST> parsePrototype(){
     if(curToken != ')') return logErrorP("Expect ')' matching '('");
     if(kind && kind != args.size()) return logErrorP("Variable number do not match function name!");
     getNextToken();
-    return llvm::make_unique<ProtoTypeAST>(functionName, std::move(args), kind != 0, precedence);
+    return std::make_unique<ProtoTypeAST>(functionName, std::move(args), kind != 0, precedence);
 }
 
 static std::unique_ptr<FunctionAST> parseDefinition(){
@@ -512,7 +512,7 @@ static std::unique_ptr<FunctionAST> parseDefinition(){
     if(!proto) return nullptr;
 
     auto body = parseExpression();
-    return llvm::make_unique<FunctionAST>(std::move(proto), std::move(body));
+    return std::make_unique<FunctionAST>(std::move(proto), std::move(body));
 }
 
 static std::unique_ptr<ProtoTypeAST> parseExtern(){
@@ -523,8 +523,8 @@ static std::unique_ptr<ProtoTypeAST> parseExtern(){
 static std::unique_ptr<FunctionAST> parseTopLevel(){
     if(auto body = parseExpression()){
         std::vector<std::string> v;
-        auto proto = llvm::make_unique<ProtoTypeAST>("__anon_expr", std::move(v));
-        return llvm::make_unique<FunctionAST>(std::move(proto), std::move(body));
+        auto proto = std::make_unique<ProtoTypeAST>("__anon_expr", std::move(v));
+        return std::make_unique<FunctionAST>(std::move(proto), std::move(body));
     }
     return nullptr;
 }
@@ -561,7 +561,7 @@ static std::unique_ptr<ExprAST> parseFor(){
     if(curToken != TOKEN_IN) return logError("Expect token in in loop");
     getNextToken();
     auto body = parseExpression();
-    return llvm::make_unique<ForExprAST>(std::move(variable), std::move(start), std::move(end), std::move(step), std::move(body));
+    return std::make_unique<ForExprAST>(std::move(variable), std::move(start), std::move(end), std::move(step), std::move(body));
 }
 
 static std::unique_ptr<ExprAST> parseUnary(){
@@ -571,7 +571,7 @@ static std::unique_ptr<ExprAST> parseUnary(){
     char Op = (char)curToken;
     getNextToken();
     if(auto Operand = parseUnary()){
-        return llvm::make_unique<UnaryAST>(Op, std::move(Operand));
+        return std::make_unique<UnaryAST>(Op, std::move(Operand));
     }
     return nullptr;
 }
@@ -645,10 +645,10 @@ static void topLevelHandler(){
 // Optimizer and JIT
 //===--------------------------------------------------------------------------
 void initializeModuleAndFPM(){
-    theModules = llvm::make_unique<llvm::Module>("Seanforfun", llvmContext);
+    theModules = std::make_unique<llvm::Module>("Seanforfun", llvmContext);
     theModules->setDataLayout(theJIT->getTargetMachine().createDataLayout());
 
-    theFPM = llvm::make_unique<llvm::legacy::FunctionPassManager>(theModules.get());
+    theFPM = std::make_unique<llvm::legacy::FunctionPassManager>(theModules.get());
 
     //InstructionCombining - Combine instructions to form fewer, simple instructions.
     theFPM->add(llvm::createInstructionCombiningPass());
@@ -979,7 +979,7 @@ int main(){
     binopPrecedence['*'] = 40;
     std::cout << "Start> " << std::endl;
 
-    theJIT = llvm::make_unique<llvm::orc::KaleidoscopeJIT>();
+    theJIT = std::make_unique<llvm::orc::KaleidoscopeJIT>();
 
     initializeModuleAndFPM();
     MainLoop();

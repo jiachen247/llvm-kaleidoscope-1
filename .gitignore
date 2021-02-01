@@ -1,0 +1,5 @@
+**/CmakeCache.txt
+**/CmakeFiles
+**/CmakeFiles/*
+**/cmake_install.cmake
+**/toy

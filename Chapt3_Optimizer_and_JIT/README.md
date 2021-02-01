@@ -12,9 +12,9 @@ In LLVM structure, optimizer is applied on IR codes and defined by passes.
     * Initialize the pass manager.
     ```objectivec
     void initializeModuleAndFPM(){
-        theModules = llvm::make_unique<llvm::Module>("Seanforfun", llvmContext);
+        theModules = std::make_unique<llvm::Module>("Seanforfun", llvmContext);
     
-        theFPM = llvm::make_unique<llvm::legacy::FunctionPassManager>(theModules.get());
+        theFPM = std::make_unique<llvm::legacy::FunctionPassManager>(theModules.get());
     
         //InstructionCombining - Combine instructions to form fewer, simple instructions.
         theFPM->add(llvm::createInstructionCombiningPass());
